@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Simple Websocket Bridge Demo</title>
+</head>
+<body>
+  <h1>Simple Websocket Bridge Demo</h1>
+  <p>Start the FastAPI app first (see 01_simple_websocket_bridge.py), then open this file in your browser.</p>
+  <div id="log"></div>
+  <input id="message" placeholder="Type a message" />
+  <button id="send">Send</button>
+
+  <script>
+    const log = document.getElementById("log");
+    const input = document.getElementById("message");
+    const button = document.getElementById("send");
+    const socket = new WebSocket("ws://127.0.0.1:8000/ws/chat");
+
+    // textContent (not innerHTML) so messages are shown as plain text, never run as HTML
+    function addLine(who, text) {
+      const p = document.createElement("p");
+      const label = document.createElement("strong");
+      label.textContent = who + ": ";
+      p.append(label, text);
+      log.append(p);
+      return p;
+    }
+
+    let thinking = null;
+
+    socket.addEventListener("message", (event) => {
+      const data = JSON.parse(event.data);
+      if (thinking) { thinking.remove(); thinking = null; }
+      addLine("Assistant", data.response || data.error);
+    });
+
+    socket.addEventListener("close", () => {
+      addLine("System", "Not connected. Is the FastAPI server running? Start it, then refresh this page.");
+    });
+
+    function send() {
+      const message = input.value.trim();
+      if (!message || socket.readyState !== WebSocket.OPEN) return;
+      addLine("You", message);
+      thinking = addLine("Assistant", "thinking…");
+      socket.send(JSON.stringify({ message }));
+      input.value = "";
+    }
+
+    button.addEventListener("click", send);
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") send();
+    });
+  </script>
+</body>
+</html>

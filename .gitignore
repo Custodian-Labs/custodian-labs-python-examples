@@ -1,0 +1,27 @@
+# Virtual environment
+.venv/
+venv/
+env/
+*.old
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Environment variables
+.env
+.env.local
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Output from guardian_layer_examples/02_simple_guardian_layer_file.py
+masked_*
